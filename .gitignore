@@ -1,0 +1,8 @@
+# IDE and OS files
+.idea
+.vscode
+.DS_Store
+
+# Transient project files and directories
+.env
+tmp
