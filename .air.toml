@@ -30,3 +30,8 @@ tmp_dir = "tmp"
 
 [misc]
   clean_on_exit = false
+
+[proxy]
+  enabled = true
+  proxy_port = 4002
+  app_port = 4001

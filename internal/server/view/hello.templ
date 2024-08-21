@@ -2,6 +2,14 @@ package view
 
 templ Hello() {
     @base() {
-    <div>Hello World</div>
+    <label>Search:
+        <input type="text" name="q"
+        hx-post="/search"
+        hx-trigger="keyup delay:500ms changed"
+        hx-target="#search-results"
+        placeholder="Search..."
+        >
+    </label>
+    <div id="search-results"></div>
     }
 }
