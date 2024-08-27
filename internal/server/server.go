@@ -39,6 +39,9 @@ func New(c Config) (Server, error) {
 
 	r.Mount("/", route.Routes())
 
+	fs := http.FileServer(http.Dir("static"))
+	r.Handle("/static/*", http.StripPrefix("/static", fs))
+
 	s := http.Server{
 		Addr:    fmt.Sprintf(":%d", c.Port()),
 		Handler: r,
