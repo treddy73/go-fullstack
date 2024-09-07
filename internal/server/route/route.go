@@ -4,36 +4,31 @@ import (
 	"github.com/a-h/templ"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
+	"github.com/treddy73/go-fullstack/internal/server/db"
 	"github.com/treddy73/go-fullstack/internal/server/view"
 	"net/http"
-	"strings"
 )
 
-func Routes() chi.Router {
+func Routes(todos *db.Collection) chi.Router {
 	r := chi.NewRouter()
 	r.Use(render.SetContentType(render.ContentTypeHTML))
 
-	r.Get("/", templ.Handler(view.Hello()).ServeHTTP)
-	r.Post("/search", searchResultsHandler)
+	r.Get("/", templ.Handler(view.Hello(todos.Filter(""))).ServeHTTP)
+	r.Post("/search", searchResultsHandler(todos))
 
 	return r
 }
 
-func searchResultsHandler(w http.ResponseWriter, r *http.Request) {
-	db := []string{"one", "two", "three", "four", "five", "cat", "bird", "dog", "fish"}
+func searchResultsHandler(todos *db.Collection) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		_ = r.ParseForm()
 
-	_ = r.ParseForm()
-
-	var filter []string
-	if r.Form.Has("q") {
-		q := strings.ToLower(r.Form.Get("q"))
-		for _, v := range db {
-			if strings.Contains(v, q) {
-				filter = append(filter, v)
-			}
+		q := ""
+		if r.Form.Has("q") {
+			q = r.Form.Get("q")
 		}
-	}
 
-	component := view.SearchResults(filter)
-	_ = component.Render(r.Context(), w)
+		component := view.SearchResults(todos.Filter(q))
+		_ = component.Render(r.Context(), w)
+	}
 }

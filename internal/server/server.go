@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/treddy73/go-fullstack/internal/server/db"
 	"github.com/treddy73/go-fullstack/internal/server/route"
 	"net/http"
 	"os"
@@ -20,6 +21,14 @@ type Server struct {
 }
 
 func New(c Config) (Server, error) {
+	// hack db
+	todos := db.NewCollection()
+	todos.Add("Change lightbulb")
+	todos.Add("Make coffee")
+	todos.Add("Wash dishes").Completed = true
+	todos.Add("Jazzercise")
+	todos.Add("Solve world hunger").Completed = true
+
 	r := chi.NewRouter()
 
 	r.Use(middleware.Logger)
@@ -37,7 +46,7 @@ func New(c Config) (Server, error) {
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	}))
 
-	r.Mount("/", route.Routes())
+	r.Mount("/", route.Routes(todos))
 
 	fs := http.FileServer(http.Dir("static"))
 	r.Handle("/static/*", http.StripPrefix("/static", fs))
@@ -52,7 +61,7 @@ func New(c Config) (Server, error) {
 
 func (s Server) Start() {
 	// Server run context
-	serverCtx, serverStopCtx := context.WithCancel(context.Background())
+	serverCtx, serverCtxStop := context.WithCancel(context.Background())
 	notifyCtx, notifyCtxStop := signal.NotifyContext(context.Background(), syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 	defer notifyCtxStop()
 
@@ -76,7 +85,7 @@ func (s Server) Start() {
 			os.Exit(1)
 		}
 
-		serverStopCtx()
+		serverCtxStop()
 	}()
 
 	fmt.Printf("server listening on %s\n", s.Addr)

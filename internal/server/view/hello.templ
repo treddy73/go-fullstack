@@ -1,6 +1,8 @@
 package view
 
-templ Hello() {
+import "github.com/treddy73/go-fullstack/internal/server/db"
+
+templ Hello(todos []*db.Todo) {
     @base() {
     <label>Search:
         <input type="text" name="q"
@@ -10,6 +12,8 @@ templ Hello() {
             placeholder="Search..."
         >
     </label>
-    <div id="search-results"></div>
+    <div id="search-results">
+        @SearchResults(todos)
+    </div>
     }
 }

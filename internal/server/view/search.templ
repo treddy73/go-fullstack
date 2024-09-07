@@ -1,9 +1,11 @@
 package view
 
-templ SearchResults(results []string) {
+import "github.com/treddy73/go-fullstack/internal/server/db"
+
+templ SearchResults(todos []*db.Todo) {
     <ul>
-        for _, r := range results {
-            <li>{r}</li>
+        for _, r := range todos {
+            <li>{ r.Name }</li>
         }
     </ul>
 }
